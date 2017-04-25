@@ -11,5 +11,8 @@
         <view>
             <button type="primary" hover-class="btnhover" formType="submit">登录</button>
         </view>
+        <view>
+            <navigator url="/page/component/home/index" open-type="switchTab" class="btn" hover-class="btnhover">以访客身份继续浏览</navigator>
+        </view>
     </form>
 </view>

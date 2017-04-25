@@ -1,0 +1,25 @@
+{
+  "name": "yunyue",
+  "AppID" : "wxf23b6ad63e087162",
+  "version": "1.0.0",
+  "description": "net music",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://kainy@github.com/FJUT/netmusic-app.git"
+  },
+  "keywords": [
+    "music",
+    "weapp",
+    "mini-program"
+  ],
+  "author": "sqaiyan, kainy",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/FJUT/netmusic-app/issues"
+  },
+  "homepage": "https://github.com/FJUT/netmusic-app#readme"
+}

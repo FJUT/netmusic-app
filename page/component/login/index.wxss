@@ -4,3 +4,10 @@
 font-size: 32rpx}
 .formc-cnt text{text-align: left}
 .formc-cnt input{flex: 1;display: block}
+.btn {
+  margin: 70rpx 0;
+  color: #1AAD16;
+  font-size: .9em;
+  float: right;
+  opacity: .7
+}
