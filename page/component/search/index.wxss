@@ -16,11 +16,10 @@ border-radius:4rpx;font-size: 28rpx;padding: 0 60rpx;box-sizing: border-box;heig
 .tab .tab-item{flex: 0 0 160rpx;} 
 .vhidden{visibility:hidden;}
 
-.userprofiles .flexmain image{width: 32rpx;height: 32rpx; }
-.userprofiles .fl-image image{border-radius: 50%}
+
 .sm_title{font-size: 28rpx;margin: 0}
 #re_search_wrap{display: flex; flex-direction: column; justify-content: flex-end; }
-.sr_lists icon{ vertical-align:top;margin-right: 10rpx}
+.sr_lists icon{ vertical-align:top;}
 .sr_lists image{width: 60rpx;height: 60rpx; vertical-align:top}
 
 .search_relist{height: 100%;padding-top: 161rpx;box-sizing:  border-box}

@@ -31,17 +31,30 @@ Page({
   },
   music_toggle: function (r) {
     this.setData({
-      playing: r.playing
+      playing: r.playing,
+      music: r.music,
+      playtype: r.playtype,
+      curplay: r.music.id
     })
   },
-  onLoad: function (options) {
+  onShow: function () {
     nt.addNotification("music_next", this.music_next, this);
     nt.addNotification("music_toggle", this.music_toggle, this);
     this.setData({
+      curplay: app.globalData.curplay.id,
       music: app.globalData.curplay,
       playing: app.globalData.playing,
-      playtype: app.globalData.playtype,
+      playtype: app.globalData.playtype
     })
+  },
+  onHide: function () {
+    nt.removeNotification("music_next", this)
+    nt.removeNotification("music_toggle", this)
+  },
+  lovesong:function(){
+    common.songheart(this,app, 0,(this.data.playtype==1? this.data.music.st:this.data.music.starred));
+  },
+  onLoad: function (options) {
     var that = this
     wx.request({
       url: bsurl + 'playlist/detail',
@@ -75,11 +88,7 @@ Page({
       }
     });
   },
-  onShow: function () {
-    this.setData({
-      curplay: app.globalData.curplay.id
-    })
-  },
+
   userplaylist: function (e) {
     var userid = e.currentTarget.dataset.userid;
     wx.redirectTo({
@@ -100,12 +109,6 @@ Page({
     app.globalData.list_sf = this.data.canplay;//this.data.list.tracks;
     app.shuffleplay(shuffle);
     app.globalData.globalStop = false;
-  },
-  mv: function (e) {
-    var id = e.currentTarget.dataset.mvid;
-    wx.navigateTo({
-      url: '../mv/index?id=' + id
-    })
   },
   playmusic: function (event) {
     let music = event.currentTarget.dataset.idx;

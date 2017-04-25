@@ -1,11 +1,16 @@
 var bsurl = require('../../../utils/bsurl.js');
 var async = require("../../../utils/async.js")
+var nt = require("../../../utils/nt.js");
+var common = require('../../../utils/util.js');
 var app = getApp();
 Page({
     data: {
         djradio: {},
         loading: false,
         programs: {},
+        music:{},
+        playing:false,
+        playtype:1,
         curplay:-1,
         base: {
             id: 0,
@@ -14,6 +19,38 @@ Page({
             asc: true
         }
     },
+    toggleplay: function () {
+		common.toggleplay(this, app);
+	},
+	playnext: function (e) {
+		app.nextplay(e.currentTarget.dataset.pt)
+	},
+	music_next: function (r) {
+		this.setData({
+			music: r.music,
+			playtype: r.playtype,
+			curplay: r.p.id
+		})
+	},
+	music_toggle: function (r) {
+		this.setData({
+			playing: r.playing
+		})
+	},
+	onHide:function(){
+		nt.removeNotification("music_next", this)
+        nt.removeNotification("music_toggle", this)
+	},
+    onShow: function () {
+		nt.addNotification("music_next", this.music_next, this);
+		nt.addNotification("music_toggle", this.music_toggle, this);
+		this.setData({
+			curplay: (app.globalData.list_dj[app.globalData.index_dj]||{}).id,
+			music: app.globalData.curplay,
+			playing: app.globalData.playing,
+			playtype: app.globalData.playtype
+		})
+	},
     onLoad: function (options) {
         var id = options.id;
         var that = this;

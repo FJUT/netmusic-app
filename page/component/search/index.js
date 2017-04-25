@@ -12,11 +12,8 @@ Page({
         prevalue: ""
     },
     onLoad: function (options) {
-        var that = this
-        nt.addNotification("testNotificationName", that.testNotificationFn, that)
-    },
-    testNotificationFn: function (r) {
-        console.log(r)
+        var v=options.key;
+        v&&this.search(v)
     },
     inputext: function (e) {
         var name = e.detail.value;
@@ -25,8 +22,7 @@ Page({
     playmusic: function (event) {
         let that = this;
         let music = event.currentTarget.dataset.idx;
-        let st = event.currentTarget.dataset.st;
-        console.log(st)
+        let st = event.currentTarget.dataset.st; 
         if (st * 1 < 0) {
             wx.showToast({
                 title: '歌曲已下架',
@@ -37,9 +33,6 @@ Page({
         }
         music = this.data.tabs[0].relist.songs[music];
         app.globalData.curplay = music
-        wx.navigateTo({
-            url: '../playing/index?id=' + music.id + '&br=' + music.privilege.maxbr
-        })
     },
     search: function (name) {
         if (!name || (name == this.data.prevalue)) return;
@@ -58,7 +51,7 @@ Page({
             curtab.relist = res;
             curtab.loading = true;
             var resultarry = res.songs || res.artists || res.albums || res.playlists || res.mvs || res.djprograms || res.userprofiles || []
-            curtab.offset = resultarry.length ? resultarry.length : 0;
+            curtab.offset = resultarry.length
             var size = res.songCount || res.artistCount || res.albumCount || res.playlistCount || res.mvCount || res.djprogramCount || res.userprofileCount;
             size = size ? size : 0;
             curtab.none = curtab.offset >= size ? true : false;
@@ -97,7 +90,6 @@ Page({
             that = this;
         var curtab = tl[this.data.tab.index];
         if (curtab.none) { return; }
-        console.log(curtab.more)
         curtab.loading = false;
         tl[this.data.tab.index] = curtab
         this.setData({
@@ -108,7 +100,7 @@ Page({
             var resultarry = res.songs || res.artists || res.albums || res.playlists || res.mvs || res.djprograms || res.userprofiles || [];
             var size = res.songCount || res.artistCount || res.albumCount || res.playlistCount || res.mvCount || res.djprogramCount || res.userprofileCount;
             size = size ? size : 0;
-            var length = resultarry.length ? resultarry.length : 0;
+            var length = resultarry.length
             curtab.offset = curtab.offset + length;
             curtab.none = curtab.offset >= size ? true : false;
             curtab.relist.songs = curtab.relist.songs ? curtab.relist.songs.concat(resultarry) : null;
@@ -160,7 +152,7 @@ Page({
                 curtab.relist = res;
                 curtab.loading = true;
                 var resultarry = res.songs || res.artists || res.albums || res.playlists || res.mvs || res.djprograms || res.userprofiles || [];
-                curtab.offset = resultarry.length ? resultarry.length : 0;
+                curtab.offset = resultarry.length
                 var size = res.songCount || res.artistCount || res.albumCount || res.playlistCount || res.mvCount || res.djprogramCount || res.userprofileCount;
                 size = size ? size : 0;
                 curtab.none = curtab.offset >= size ? true : false;
@@ -188,7 +180,10 @@ Page({
     },
     clear_kw: function () {
         this.setData({
-            value: ""
+            value: "",
+            loading:false,
+            tabs: typelist,
+            prevalue:""
         })
     },
     del_research: function (e) {

@@ -39,10 +39,14 @@ Page({
         else{
           that.data.offset=res.data.data.length
         }
+        var list=res.data;
+        list.size=(res.data.size/1073741824).toFixed(2)
+         list.maxSize=(res.data.maxSize/1073741824)
+        list.percent=(list.size/list.maxSize).toFixed(2)
         that.setData({
           loading:true,
           offset:that.data.offset,
-          list: res.data
+          list: list
         });
       }
     });
@@ -71,12 +75,6 @@ Page({
     console.log(appInstance.globalData.globalStop, "F playlist")
     this.setData({
       curplay: music.id
-    })
-  },
-  mv: function (e) {
-    var id = e.currentTarget.dataset.mvid;
-    wx.navigateTo({
-      url: '../mv/index?id=' + id
     })
   },
   playmusic: function (event) {

@@ -14,11 +14,13 @@ var defaultdata = {
 	disable: false,
 	tgpinfo: false,
 	downloadPercent: 0,
+	showpinfo: false,
 	share: {
 		title: "一起来听",
 		des: ""
 	},
-	p: {}
+	p: {},
+	curpl: []
 };
 Page({
 	data: defaultdata,
@@ -60,7 +62,8 @@ Page({
 				});
 				wx.setNavigationBarTitle({ title: app.globalData.curplay.name });
 				nt.postNotificationName("music_next", {
-					music:app.globalData.curplay,
+					music: app.globalData.curplay,
+					p: res,
 					playtype: 3
 				});
 				app.seekmusic(3);
@@ -72,6 +75,11 @@ Page({
 			}
 		})
 
+	},
+	togpinfo: function () {
+		this.setData({
+			showpinfo: !this.data.showpinfo
+		})
 	},
 	toggleinfo: function () {
 		this.setData({
@@ -103,37 +111,66 @@ Page({
 	},
 	songheart: function () {
 		var that = this;
-		var music = this.data.music;
+		var p = this.data.p;
+		wx.request({
+			url: bsurl + 'resource/like',
+			data: {
+				id: p.commentThreadId,
+				t: p.liked ? 0 : 1,
+				cookie: app.globalData.cookie
+			},
+			success: function (res) {
+				if (res.data.code == 200) {
+					p.liked = !p.liked
+					that.setData({
+						p: p
+					})
+				}
+			}
+		})
 	},
 	museek: function (e) {
 		var nextime = e.detail.value
 		var that = this
 		nextime = app.globalData.curplay.duration * nextime / 100000;
 		app.globalData.currentPosition = nextime
-		app.seekmusic(1, function () {
+
+		app.seekmusic(1, app.globalData.currentPosition, function () {
 			that.setData({
 				percent: e.detail.value
 			})
-		}, app.globalData.currentPosition);
+		});
 	},
 	onShow: function () {
 		var that = this;
 		common.playAlrc(that, app);
+		nt.addNotification("music_next", this.music_next, this);
 		seek = setInterval(function () {
 			common.playAlrc(that, app);
 		}, 1000);
 	},
 	onUnload: function () {
-		clearInterval(seek)
+		clearInterval(seek);
+		nt.removeNotification("music_next", this)
 	},
 	onHide: function () {
 		clearInterval(seek)
+		nt.removeNotification("music_next", this)
+	},
+	music_next: function (r) {
+		var that = this
+		common.loadrec(app.globalData.cookie, 0, 0, r.p.id, function (res) {
+			that.setData({
+				commentscount: res.total
+			})
+		}, 3)
 	},
 	onLoad: function (options) {
 		var that = this;
 		app.globalData.playtype = 3;
 		this.setData({
-			shuffle: app.globalData.shuffle
+			shuffle: app.globalData.shuffle,
+			curpl: app.globalData.list_dj
 		});
 		var curp = app.globalData.list_dj[app.globalData.index_dj] || {}
 		if (!curp.mainSong || (curp.mainSong.id != options.id)) {
@@ -151,7 +188,7 @@ Page({
 				},
 			});
 			wx.setNavigationBarTitle({ title: app.globalData.curplay.name });
-			common.loadrec(app.globalData.cookie, 0, 0, that.data.music.id, function (res) {
+			common.loadrec(app.globalData.cookie, 0, 0, that.data.p.id, function (res) {
 				that.setData({
 					commentscount: res.total
 				})
@@ -167,7 +204,7 @@ Page({
 			that.setData({ playing: false });
 			app.stopmusic(3);
 		} else {
-			app.seekmusic(3,app.globalData.currentPosition,function () {
+			app.seekmusic(3, app.globalData.currentPosition, function () {
 				that.setData({
 					playing: true
 				});

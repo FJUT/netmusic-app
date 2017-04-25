@@ -8,9 +8,9 @@ Page({
         rec: {
             idx: 0, loading: false,
         },
-        music:app.globalData.curplay,
-        playing:false,
-        playtype:app.globalData.playtype,
+        music: {},
+        playing: false,
+        playtype: {},
         banner: [4],
         thisday: (new Date()).getDate(),
         cateisShow: false,
@@ -30,58 +30,71 @@ Page({
             offset: 0,
             limit: 20
         },
-        djcate: {loading:false},
+        djcate: { loading: false },
         djrecs: {},
         sort: {
             idx: 3, loading: false
         },
         tabidx: 0
     },
-    toggleplay:function(){
-        common.toggleplay(this,app);
+    toggleplay: function () {
+        common.toggleplay(this, app);
     },
-    a:function(e){
-        return "ssssss"
-    },
-    playnext:function(e){
+    playnext: function (e) {
         app.nextplay(e.currentTarget.dataset.pt)
     },
-    music_next:function(r){
-        console.log(r)
+    music_next: function (r) {
         this.setData({
-            music:r.music,
-            playtype:r.playtype
+            music: r.music,
+            playtype: r.playtype
         })
     },
-    music_toggle:function(r){
+    music_toggle: function (r) {
         this.setData({
-            playing:r.playing
+            playing: r.playing
         })
     },
     onLoad: function (options) {
-        nt.addNotification("music_next", this.music_next, this);
-        nt.addNotification("music_toggle", this.music_toggle, this)
-        if(options.share==1){
-            var url='../'+options.st+'/index?id='+options.id
-            console.log(url,options.st,options.id)
+        if (options.share == 1) {
+            var url = '../' + options.st + '/index?id=' + options.id
+            console.log(url, options.st, options.id)
             wx.navigateTo({
-              url: url,
-              success:function(){
-                  console.log("tiaozhuan chenggong")
-              }
+                url: url,
+                success: function () {
+                    console.log("tiaozhuan chenggong")
+                }
             })
             return;
         };
     },
+    onHide: function () {
+        nt.removeNotification("music_next", this)
+        nt.removeNotification("music_toggle", this)
+    },
+    onShow: function () {
+        nt.addNotification("music_next", this.music_next, this);
+        nt.addNotification("music_toggle", this.music_toggle, this)
+        this.setData({
+            music: app.globalData.curplay,
+            playing: app.globalData.playing,
+            playtype: app.globalData.playtype,
+        })
+        if (wx.getStorageSync('cookie') == '') {
+            wx.redirectTo({
+                url: '../login/index'
+            });
+            return;
+        }
+        !this.data.rec.loading && this.init();
+    },
     switchtab: function (e) {
         var that = this;
-        nt.postNotificationName("testNotificationName",'nt----------------------');
         var t = e.currentTarget.dataset.t;
         this.setData({ tabidx: t });
         if (t == 1 && !this.data.playlist.loading) {
             this.gplaylist()
         }
-        if (t == 2&&!this.data.djcate.loading) {
+        if (t == 2 && !this.data.djcate.loading) {
             //批量获取电台分类，推荐节目，精选电台，热门电台
             async.map(['djradio/catelist', 'program/recommend', 'djradio/recommend', 'djradio/hot'], function (item, callback) {
                 wx.request({
@@ -94,20 +107,20 @@ Page({
             }, function (err, results) {
                 console.log(err)
                 console.log(results)
-                var catelist=results[0];
-                catelist.loading=true;
+                var catelist = results[0];
+                catelist.loading = true;
                 that.setData({
-                    djcate:catelist,
-                    djrecs:{
-                        rec_p:results[1],
-                        rec_d:results[2]
+                    djcate: catelist,
+                    djrecs: {
+                        rec_p: results[1],
+                        rec_d: results[2]
                     },
-                    djlist:{
-                        loading:true,
-                        idx:2,
-                        list:results[3],
-                        limit:20,
-                        offset:results[3].djRadios.length
+                    djlist: {
+                        loading: true,
+                        idx: 2,
+                        list: results[3],
+                        limit: 20,
+                        offset: results[3].djRadios.length
                     }
                 })
             });
@@ -130,8 +143,8 @@ Page({
         }
 
     },
-    gdjlist:function(isadd){
-        var that=this;
+    gdjlist: function (isadd) {
+        var that = this;
         var that = this;
         wx.request({
             url: bsurl + 'djradio/hot',
@@ -183,7 +196,7 @@ Page({
         if (this.data.tabidx == 1) {
             this.gplaylist(1);//更多歌单
         }
-        else if(this.data.tabidx == 2) {
+        else if (this.data.tabidx == 2) {
             this.gdjlist(1);//更多dj节目
         }
     },
@@ -208,16 +221,8 @@ Page({
         });
         this.gplaylist();
     },
-    onShow: function () {
-        if (wx.getStorageSync('cookie') == '') {
-            wx.redirectTo({
-                url: '../login/index'
-            });
-            return;
-        }
-        !this.data.rec.loading&&this.init();
-    },
-    init:function(){
+
+    init: function () {
         var that = this
         var rec = this.data.rec
         //banner，

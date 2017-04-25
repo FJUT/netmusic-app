@@ -4,15 +4,11 @@ App({
   onLaunch: function () {
     var cookie = wx.getStorageSync('cookie') || '';
     var gb = wx.getStorageSync("globalData");
-    console.log(gb)
     gb && (this.globalData = gb)
     this.globalData.cookie = cookie
     var that = this;
     //播放列表中下一首
     wx.onBackgroundAudioStop(function () {
-      nt.postNotificationName("music_toggle", {
-        playing: false
-      });
       if (that.globalData.globalStop) {
         return;
       }
@@ -22,19 +18,23 @@ App({
         that.nextfm();
       }
     });
-    this.likelist();
-    //this.loginrefresh();
+    //监听音乐暂停，保存播放进度广播暂停状态
     wx.onBackgroundAudioPause(function () {
       nt.postNotificationName("music_toggle", {
-        playing: false
+        playing: false,
+        playtype: that.globalData.playtype,
+        music: that.globalData.curplay || {}
       });
+      that.globalData.playing = false;
       that.globalData.globalStop = that.globalData.hide ? true : false;
       wx.getBackgroundAudioPlayerState({
         complete: function (res) {
           that.globalData.currentPosition = res.currentPosition ? res.currentPosition : 0
         }
       })
-    })
+    });
+    this.likelist();
+    //this.loginrefresh();
   },
   loginrefresh: function () {
     wx.request({
@@ -56,7 +56,7 @@ App({
       }
     })
   },
-  nextplay: function (t, cb) {
+  nextplay: function (t, cb, pos) {
 
     //播放列表中下一首
     this.preplay();
@@ -72,14 +72,12 @@ App({
       index--;
     }
     index = index > list.length - 1 ? 0 : (index < 0 ? list.length - 1 : index);
-    this.globalData.curplay = (this.globalData.playtype == 1 ? list[index] : list[index].mainSong) || {};
-    for (var i = 0; i < this.globalData.staredlist.length; i++) {
-      if (this.globalData.staredlist[i] == this.globalData.curplay.id) {
-        this.globalData.curplay.starred = true;
-        this.globalData.curplay.st = true;
-      }
+    index = pos != undefined ? pos : index;
+    this.globalData.curplay = (this.globalData.playtype == 1 ? list[index] : list[index].mainSong) || this.globalData.curplay;
+    if (this.globalData.staredlist.indexOf(this.globalData.curplay.id) != -1) {
+      this.globalData.curplay.starred = true;
+      this.globalData.curplay.st = true;
     }
-    if (!this.globalData.curplay.id) return;
     if (this.globalData.playtype == 1) {
       this.globalData.index_am = index;
     } else {
@@ -88,6 +86,7 @@ App({
     nt.postNotificationName("music_next", {
       music: this.globalData.curplay,
       playtype: this.globalData.playtype,
+      p: this.globalData.playtype == 1 ? [] : list[index],
       index: this.globalData.playtype == 1 ? this.globalData.index_am : this.globalData.index_dj
     });
     this.seekmusic(this.globalData.playtype);
@@ -108,25 +107,25 @@ App({
       console.log("获取下一首fm")
       that.globalData.index_fm = index;
       that.globalData.curplay = list[index];
-      for (var i = 0; i < this.globalData.staredlist.length; i++) {
-        if (this.globalData.staredlist[i] == this.globalData.curplay.id) {
-          this.globalData.curplay.starred = true;
-          this.globalData.curplay.st = true;
-        }
+      if (this.globalData.staredlist.indexOf(this.globalData.curplay.id) != -1) {
+        this.globalData.curplay.starred = true;
+        this.globalData.curplay.st = true;
       }
       that.seekmusic(2);
+      nt.postNotificationName("music_next", {
+        music: this.globalData.curplay,
+        playtype: 2,
+        index: index
+      });
       cb && cb();
     }
 
   },
   preplay: function () {
     //歌曲切换 停止当前音乐
-    nt.postNotificationName("music_toggle", {
-      playing: false
-    });
     this.globalData.playing = false;
     this.globalData.globalStop = true;
-    //  wx.stopBackgroundAudio();
+    wx.pauseBackgroundAudio();
   },
   getfm: function () {
     var that = this;
@@ -135,34 +134,31 @@ App({
       data: {
         cookie: that.globalData.cookie
       },
-      method: 'GET',
       success: function (res) {
         that.globalData.list_fm = res.data.data;
         that.globalData.index_fm = 0;
         that.globalData.curplay = res.data.data[0];
+        if (that.globalData.staredlist.indexOf(that.globalData.curplay.id) != -1) {
+          that.globalData.curplay.starred = true;
+          that.globalData.curplay.st = true;
+        }
         that.seekmusic(2);
+        nt.postNotificationName("music_next", {
+          music: that.globalData.curplay,
+          playtype: 2,
+          index: 0
+        });
       }
     })
   },
   stopmusic: function (type, cb) {
-    var that = this;
     wx.pauseBackgroundAudio();
-    nt.postNotificationName("music_toggle", {
-      playing: false
-    });
-    that.globalData.playing = false;
-    wx.getBackgroundAudioPlayerState({
-      complete: function (res) {
-        that.globalData.currentPosition = res.currentPosition ? res.currentPosition : 0
-      }
-    })
   },
-  seekmusic: function (type,seek,cb) {
+  seekmusic: function (type, seek, cb) {
     var that = this;
     var m = this.globalData.curplay;
     if (!m.id) return;
     this.globalData.playtype = type;
-
     if (cb || this.globalData.playtype == 3) {
       this.playing(type, cb, seek);
     } else {
@@ -184,13 +180,9 @@ App({
         that.globalData.playing = true;
         nt.postNotificationName("music_toggle", {
           playing: true,
-           music: that.globalData.curplay,
-           playtype:that.globalData.playtype
+          music: that.globalData.curplay,
+          playtype: that.globalData.playtype
         });
-        // nt.postNotificationName("music_next", {
-        //   music: that.globalData.curplay,
-        //   playtype:that.globalData.playtype
-        // });
         cb && cb();
       },
       fail: function () {
@@ -219,7 +211,11 @@ App({
           err && err()
         } else {
           that.globalData.curplay.url = a.url;
-          console.log(that.globalData.curplay)
+          that.globalData.curplay.getutime=(new Date()).getTime()
+          if (that.globalData.staredlist.indexOf(that.globalData.curplay.id) != -1) {
+            that.globalData.curplay.starred = true;
+            that.globalData.curplay.st = true;
+          }
           suc && suc()
         }
       }
@@ -267,7 +263,7 @@ App({
     index_dj: 0,
     index_fm: 0,
     index_am: 0,
-    playing:false,
+    playing: false,
     playtype: 1,
     curplay: {},
     shuffle: 1,

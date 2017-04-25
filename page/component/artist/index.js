@@ -32,7 +32,7 @@ Page({
 					loading: true
 				});
 				wx.setNavigationBarTitle({
-					title: res.data.artist.name+'-'+res.data.arist.trans
+					title: res.data.artist.name
 				})
 			}
 		})

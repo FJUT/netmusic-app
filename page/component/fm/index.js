@@ -1,5 +1,6 @@
 var common = require('../../../utils/util.js');
 var bsurl = require('../../../utils/bsurl.js');
+var nt = require('../../../utils/nt.js');
 let app = getApp();
 let seek = 0;
 Page({
@@ -16,10 +17,20 @@ Page({
         lrc: {},
         stared: false
     },
-    onLoad: function () {
+    music_next: function (r) {
+        var that = this
+        console.log("playing next")
+        common.loadrec(app.globalData.cookie, 0, 0, r.music.id, function (res) {
+            that.setData({
+                commentscount: res.total
+            })
+        })
+    },
+    onLoad: function (options) {
+        var that = this;
         var music = app.globalData.list_fm[app.globalData.index_fm];
         var that = this;
-        if (music&&app.globalData.playtype ==2) {
+        if (music && app.globalData.playtype == 2) {
             this.setData({
                 music: music,
                 duration: common.formatduration(music.duration),
@@ -37,7 +48,7 @@ Page({
         return {
             title: this.data.music.name,
             desc: this.data.music.artists[0].name,
-            path: 'page/component/home/index?share=1&st=playing&id='+this.data.music.id
+            path: 'page/component/home/index?share=1&st=playing&id=' + this.data.music.id
         }
     },
     loadlrc: function () {
@@ -45,7 +56,8 @@ Page({
     },
     onShow: function () {
         var that = this;
-        if (app.globalData.playtype == 1) {
+        nt.addNotification("music_next", this.music_next, this);
+        if (app.globalData.playtype != 2) {
             app.nextfm();
         };
         common.playAlrc(that, app);
@@ -55,33 +67,17 @@ Page({
     },
     onHide: function () {
         clearInterval(seek)
+        nt.removeNotification("music_next", this)
+    },
+    onUnload:function(){
+        nt.removeNotification("music_next", this)
     },
     songheart: function (e) {
-        var that = this;
-        var music = this.data.music;
-        common.songheart(this, app.globalData.cookie, function (t) {
-            if (t == 200) {
-                music.starred = !music.starred;
-                that.setData({ music: music });
-                app.likelist();
-            } else {
-                wx.navigateTo({
-                    url: '../login/index'
-                })
-            }
-        }, 0, music.starred)
+        common.songheart(this,app, 0, this.data.music.starred)
     },
     trash: function () {
         var that = this;
-        common.songheart(this, app.globalData.cookie, function (t) {
-            if (t == 200) {
-                that.nextplay();
-            } else {
-                wx.navigateTo({
-                    url: '../login/index'
-                })
-            }
-        }, 1)
+        common.songheart(this,app, 1)
     },
     loadimg: function (e) {
         this.setData({
@@ -93,20 +89,13 @@ Page({
         var that = this;
         nextime = app.globalData.curplay.duration * nextime / 100000;
         app.globalData.currentPosition = nextime
-        app.seekmusic(2, function () {
+        app.seekmusic(2,app.globalData.currentPosition, function () {
             that.setData({
                 percent: e.detail.value
             })
-        }, app.globalData.currentPosition);
+        });
     },
     play: function (m) {
-        var that = this
-        if (this.data.playing) {
-            that.setData({ playing: false });
-            app.stopmusic(1);
-        } else {
-            app.seekmusic(2,app.globalData.currentPosition,function(){});
-        }
         common.toggleplay(this, app, function () { })
     },
     nextplay: function () {
@@ -119,6 +108,5 @@ Page({
             duration: "00:00"
         })
         app.nextfm();
-        
     }
 })

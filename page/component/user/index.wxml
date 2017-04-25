@@ -41,7 +41,7 @@
       </view>
     </navigator>
     <template is="pl" data="{{list:list1}}" />
-    <view class="sm_title">{{user.profile.nickname}}收藏的歌单 <text>({{list2.length}})</text>
+    <view class="sm_title" hidden="{{!list2.length}}">{{user.profile.nickname}}收藏的歌单 <text>({{list2.length}})</text>
     </view>
     <template is="pl" data="{{list:list2}}" />
   </view>

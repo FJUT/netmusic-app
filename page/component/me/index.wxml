@@ -1,49 +1,37 @@
 <import src="../../../utils/pl.wxml" />
+<import src="../../../utils/image.wxml" />
 <view>
   <view class="menu">
     <view class="mn_list">
     <view class="mn_ico">
-      <image src="../../../image/cm2_list_icn_dld_new@2x.png"></image></view>
+    <template is="image" data="{{src:'../../../image/cm2_list_icn_dld_new@2x.png',width:60}}"/></view>
       <view class="cmain">我的下载</view>
       <view class="rdes">
         <view class="arrow"></view>
       </view>
     </view>
     <navigator url="../record/index?uid={{uid}}" class="mn_list">
-      <view class="mn_ico"><image src="../../../image/cm2_list_icn_recent_new@2x.png"></image></view>
+      <view class="mn_ico">
+      <template is="image" data="{{src:'../../../image/cm2_list_icn_recent_new@2x.png',width:60}}"/></view>
       <view class="cmain">最近播放</view>
       <view class="rdes">
         <view class="arrow"></view>
       </view>
     </navigator>
     <navigator url="../cloud/index" class="mn_list">
-      <view class="mn_ico"><image src="../../../image/cm2_lay_icn_cloud@2x.png"></image></view>
+      <view class="mn_ico">
+      <template is="image" data="{{src:'../../../image/cm2_lay_icn_cloud@2x.png',width:60}}"/></view>
       <view class="cmain">我的云盘</view>
       <view class="rdes">
         <view class="arrow"></view>
       </view>
     </navigator>
     <view class="mn_list">
-      <view class="mn_ico"><image src="../../../image/cm2_list_icn_artists_new@2x.png"></image></view>
-      <view class="cmain">我的歌手</view>
+      <view class="mn_ico">
+      <template is="image" data="{{src:'../../../image/cm4_my_icn_fav@2x.png',width:60}}"/></view>
+      <view class="cmain">我的收藏</view>
       <view class="rdes">
         <text>{{subcount.artistCount}}</text>
-        <view class="arrow"></view>
-      </view>
-    </view>
-    <view class="mn_list">
-      <view class="mn_ico"><image src="../../../image/cm2_list_icn_mymv_new@2x.png"></image></view>
-      <view class="cmain">Mv</view>
-      <view class="rdes">
-        <text>{{subcount.mvCount}}</text>
-        <view class="arrow"></view>
-      </view>
-    </view>
-    <view class="mn_list">
-      <view class="mn_ico"><image src="../../../image/cm2_list_icn_rdi_new@2x.png"></image></view>
-      <view class="cmain">我的电台</view>
-      <view class="rdes">
-        <text>{{subcount.djRadioCount}}</text>
         <view class="arrow"></view>
       </view>
     </view>
