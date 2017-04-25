@@ -6,13 +6,13 @@
         </view>
         <view class="formc-cnt">
             <text>密码：</text>
-            <input auto-focus bindinput="textinput" data-type="2" type="text" password="true"/>
+            <input bindinput="textinput" data-type="2" type="text" password="true"/>
         </view>
         <view>
             <button type="primary" hover-class="btnhover" formType="submit">登录</button>
         </view>
         <view>
-            <navigator url="/page/component/home/index" open-type="switchTab" class="btn" hover-class="btnhover">以访客身份继续浏览</navigator>
+            <navigator url="/page/component/home/index" open-type="switchTab" class="btn" hover-class="none">以访客身份继续浏览</navigator>
         </view>
     </form>
 </view>
